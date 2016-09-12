@@ -8,6 +8,8 @@ import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.rules.ITokenScanner;
 
+import cucumber.eclipse.editor.contentassist.CucumberContentAssist;
+
 public class GherkinDamagerRepairer extends DefaultDamagerRepairer {
 	private static String code = "en";
 
@@ -25,6 +27,7 @@ public class GherkinDamagerRepairer extends DefaultDamagerRepairer {
 			if (!newCode.equals(code)) {
 				code = newCode;
 				GherkinKeywordScanner.setCode(code);
+				CucumberContentAssist.setCode(code);
 				((GherkinKeywordScanner) fScanner).configureRules();
 				damageRegion = new Region(0, fDocument.getLength());
 			}

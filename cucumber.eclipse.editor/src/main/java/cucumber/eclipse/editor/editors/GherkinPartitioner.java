@@ -7,6 +7,8 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 
+import cucumber.eclipse.editor.contentassist.CucumberContentAssist;
+
 public class GherkinPartitioner extends FastPartitioner {
 
 	private static String DEFAULT_EN = "en";
@@ -26,6 +28,7 @@ public class GherkinPartitioner extends FastPartitioner {
 	public void setGherkinLanguageMode(IDocument document) {
 		String code = determineGherkinLanguageMode(document);
 		GherkinKeywordScanner.setCode(code);
+		CucumberContentAssist.setCode(code);
 	}
 
 	private String determineGherkinLanguageMode(IDocument document) {

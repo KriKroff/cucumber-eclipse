@@ -37,6 +37,11 @@ public class StringUtils {
 	  
 	  public static String listToString(Collection<String> l)
 	  {
+	   return listToString(l,",");
+	  }
+	  
+	  public static String listToString(Collection<String> l,String separator)
+	  {
 	    StringBuffer result = new StringBuffer();
 	    if (l != null)
 	    {
@@ -46,7 +51,7 @@ public class StringUtils {
 	        String s = (String)iter.next();
 	        result.append(s);
 	        if (iter.hasNext()) {
-	          result.append(",");
+	          result.append(separator);
 	        }
 	      }
 	    }

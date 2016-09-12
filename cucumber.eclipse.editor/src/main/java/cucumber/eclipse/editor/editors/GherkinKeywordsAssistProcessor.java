@@ -81,7 +81,7 @@ public class GherkinKeywordsAssistProcessor implements IContentAssistProcessor {
 			{
 				//1. Check Typed=<Keyword> OR Typed=AnyWord
 				//POPULATE KEYWORD ASSISTANCE
-				if (typed.matches(contentAssist.KEYWORD_REGEX)) 
+				if (typed.matches(contentAssist.getKeywordRegexp())) 
 				{
 					 //System.out.println("IF-1:Inside ...");
 					// To display only Step-Keywords
@@ -93,7 +93,7 @@ public class GherkinKeywordsAssistProcessor implements IContentAssistProcessor {
 
 				//2.Check Typed = <Keyword any-words>
 				//POPULATE STEP ASSISTANCE
-				if (typed.matches(contentAssist.KEYWORD_SPACE_WORD_REGEX)) 
+				if (typed.matches(contentAssist.getKeywordSpaceWordRegexp())) 
 				{
 					//System.out.println("IF-2:Inside ...");
 				

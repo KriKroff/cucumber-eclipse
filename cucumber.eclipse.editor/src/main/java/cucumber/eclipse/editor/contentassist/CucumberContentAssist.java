@@ -13,10 +13,13 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.swt.graphics.Image;
 
+import cucumber.eclipse.editor.util.StringUtils;
 import cucumber.eclipse.steps.integration.Step;
 import cucumber.eclipse.steps.jdt.StepDefinitions;
+import gherkin.I18n;
 
 /**
  * @author girija.panda@nokia.com
@@ -29,6 +32,16 @@ import cucumber.eclipse.steps.jdt.StepDefinitions;
  */
 public class CucumberContentAssist {
 
+    private static String _code = "en";
+    
+    private static I18n i18n;   
+    
+    public String keywordRegexp; 
+    public String keywordSpaceWordRegexp; 
+    
+    public String keywordSpaceRegexp; 
+
+	
 	private final String NOSTEPS = "No Step Definition Found";
 
 	// Junk words needs to be filter form keyword list
@@ -93,6 +106,60 @@ public class CucumberContentAssist {
 		// Step lists
 		stepDetailList = new ArrayList<String>();
 		matchedStepList = new ArrayList<String>();
+		
+		configureRules();
+	}
+	
+	public void configureRules() {
+		validateIsoCode();
+		i18n = new I18n(_code); 
+		
+		List<String> i18nKeywords = new ArrayList<String>();
+		for (String featureElement: stepKeywords ) {
+			List<String> keywords = i18n.keywords(featureElement.toLowerCase());
+			for (String keyword : keywords) {
+				if (keyword.indexOf("*") == -1) {
+					i18nKeywords.add(keyword.trim());	
+				}
+			}
+		}
+		
+		String keywordOrRegexp = StringUtils.listToString(i18nKeywords, "|");
+		
+		keywordSpaceRegexp="^("+keywordOrRegexp+")\\s+";
+		
+		StringBuilder keywordRegex = new StringBuilder("(^");
+		keywordRegex.append(keywordOrRegexp);
+		keywordRegex.append("|$[\\S\\W\\D])");
+		keywordRegex.append("|(^(?!");
+		keywordRegex.append(keywordOrRegexp);
+		keywordRegex.append(").+)");
+		
+		this.keywordRegexp = keywordRegex.toString();
+		
+		StringBuilder keywordSpaceRegexp = new StringBuilder("(^");
+		keywordSpaceRegexp.append(keywordOrRegexp);
+		keywordSpaceRegexp.append(")[\\s][\\w\\d\\s\\S]*");		
+		this.keywordSpaceWordRegexp = keywordSpaceRegexp.toString();
+	}	
+	
+	private void validateIsoCode() {
+		boolean valid = false;
+		try {
+			List<I18n> all = gherkin.I18n.getAll();
+			for (I18n i18n : all) {
+				if (i18n.getIsoCode().equals(_code)) {
+					valid = true;
+					break;
+				}
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			_code = "en";
+		}
+		
+		if (!valid) _code = "en";
 	}
 
 	// Iterate and collect step info
@@ -211,7 +278,7 @@ public class CucumberContentAssist {
 
 	// Get Last word of a String by replacing KEYWORD
 	public String lastPrefix(String string) {
-		String lastStep = string.replaceFirst(KEYWORD_SPACE_REGEX, "");
+		String lastStep = string.replaceFirst(getKeywordSpaceRegexp(), "");
 		if(lastStep.contains(","))
 			lastStep = lastStep.substring(lastStep.lastIndexOf(",")+1).trim();
 		return lastStep;
@@ -227,7 +294,22 @@ public class CucumberContentAssist {
 		stepText = stepText.replaceAll(START_OR_END, "");
 		return stepText;
 	}
+	
+	public String getKeywordRegexp() {
+		return keywordRegexp;
+	}
+	
+	public String getKeywordSpaceWordRegexp() {
+		return keywordSpaceWordRegexp;
+	}
+	
+	public String getKeywordSpaceRegexp() {
+		return keywordSpaceRegexp;
+	}
 
+	public static void setCode(String code) {
+		_code = code;
+	}
 	
 	// Get Last word of a String
 	/*
